@@ -2,18 +2,18 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 
+from mysite.apps.users.forms import LoginForm
+
+
 def login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return HttpResponse('success!')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            login(request, user)
+            return HttpResponse('success!')
     else:
-        context={}
-    return TemplateResponse(request, 'login.html', context)
+        form = LoginForm()
+    return TemplateResponse(request, 'login.html', {'form': form})
 
 
